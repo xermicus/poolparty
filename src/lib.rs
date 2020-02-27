@@ -32,7 +32,7 @@ pub struct StoppableThreadPool<PoolError>
     pool: ThreadPool,
     control_sender: Sender<Result<(),PoolError>>,
     control_receiver: Receiver<Result<(),PoolError>>,
-    stop_senders: Vec<Sender<PoolError>>,
+    stop_senders: Vec<Sender<()>>,
 }
 
 impl<PoolError> StoppableThreadPool<PoolError> 
@@ -68,7 +68,7 @@ impl<PoolError> StoppableThreadPool<PoolError>
     where
         Fut: Future<Output = Result<(),PoolError>> + Send + 'static,
     {
-        let (tx, rx) = channel::<PoolError>(1);
+        let (tx, rx) = channel::<()>(1);
         self.stop_senders.push(tx);
         let control = self.control_sender.clone();
         self.pool.spawn_ok(async move {
@@ -90,7 +90,13 @@ impl<PoolError> StoppableThreadPool<PoolError>
         let mut completed: usize = 0;
         while let Some(output) = self.control_receiver.recv().await {
             completed += 1;
-            if output.is_err() || completed == self.stop_senders.len() {
+            if completed == self.stop_senders.len() {
+                break
+            }
+            if output.is_err() {
+                for tx in self.stop_senders.iter() {
+                    tx.send(()).await
+                }
                 return output
             }
         }

@@ -6,7 +6,7 @@ Use cases for the crate are:
 
 * Stop executing futures in case any of future that runs on it faces an unrecoverable error and returns an Err().
 * Let the caller handle the error.
-* Stop the threadpool and it's spawned tasks on user request.
+* Stop the threadpool and its spawned tasks on user request.
 
 # Usage
 
@@ -54,5 +54,5 @@ at your option.
 ### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in futures-rs by you, as defined in the Apache-2.0 license, shall be
+for inclusion in poolparty by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
