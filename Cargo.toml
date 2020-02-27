@@ -1,13 +1,13 @@
 [package]
 name = "poolparty"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["xermicus <bigcyrill@hotmail.com>"]
 edition = "2018"
 license = "MIT"
 readme = "./README.md"
 keywords = ["futures", "async", "future", "threadpool", "executor"]
 repository = "https://github.com/xermicus/poolparty"
-documentation = "https://docs.rs/poolparty/0.1.1"
+documentation = "https://docs.rs/poolparty/0.1.2"
 description = """
 Added functionality for the `futures::executor::ThreadPool` futures executor.
 """

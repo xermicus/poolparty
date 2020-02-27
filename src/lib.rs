@@ -22,9 +22,7 @@ use futures::{
 /// Caveats: If you do not call `observe().await` once all desired futures are spawned or if you spawn additional futures after the first `observe().await` the stopping mechanism won't work. In other words, instances cannot be "reused" after they were being observed for the first time.
 /// For now no measures are in place to prevent a user from doing this (maybe in a future version).
 /// 
-/// ```
-/// // TODO
-/// ```
+/// Also note that spawned tasks *can not* be cancelled instantly. They will stop executing the next time they yield to the executor.
 pub struct StoppableThreadPool<PoolError>
     where
         PoolError: Send + Sync + 'static,
@@ -90,14 +88,14 @@ impl<PoolError> StoppableThreadPool<PoolError>
         let mut completed: usize = 0;
         while let Some(output) = self.control_receiver.recv().await {
             completed += 1;
-            if completed == self.stop_senders.len() {
-                break
-            }
             if output.is_err() {
                 for tx in self.stop_senders.iter() {
                     tx.send(()).await
                 }
                 return output
+            }
+            if completed == self.stop_senders.len() {
+                break
             }
         }
         Ok(())

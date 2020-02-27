@@ -3,7 +3,6 @@ The `futures::future::ThreadPool` executor currently has no way built in to hand
 The crate works around these limitations (it might get obsolete once [this open issue will be resolved](https://github.com/rust-lang/futures-rs/issues/1468)).
 
 Use cases for the crate are:
-
 * Stop executing futures in case any of future that runs on it faces an unrecoverable error and returns an Err().
 * Let the caller handle the error.
 * Stop the threadpool and its spawned tasks on user request.
