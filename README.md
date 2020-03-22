@@ -37,7 +37,7 @@ assert_eq!(
 )
 ```
 
-Have a look at the tests in [lib.rs](https://github.com/xermicus/poolparty/blob/master/src/lib.rs#L107) for more usage examples.
+Have a look at the tests in [lib.rs](https://github.com/xermicus/poolparty/blob/master/src/lib.rs#L114) for more usage examples.
 
 # License
 

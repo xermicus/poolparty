@@ -31,6 +31,7 @@ pub struct StoppableThreadPool<PoolError>
     control_sender: Sender<Result<(),PoolError>>,
     control_receiver: Receiver<Result<(),PoolError>>,
     stop_senders: Vec<Sender<()>>,
+    chan_cap: usize,
 }
 
 impl<PoolError> StoppableThreadPool<PoolError> 
@@ -38,20 +39,22 @@ impl<PoolError> StoppableThreadPool<PoolError>
         PoolError: Send + Sync + 'static,
     {
     /// Create a new `StoppableThreadPool` instance using a default futures `ThreadPool` executor instance.
-    pub fn new() -> Result<StoppableThreadPool<PoolError>,io::Error> {
+    pub fn new(chan_cap: usize) -> Result<StoppableThreadPool<PoolError>,io::Error> {
         Ok(StoppableThreadPool::new_with_pool(
-            ThreadPool::new()?
+            ThreadPool::new()?,
+            chan_cap,
         ))
     }
 
     /// Create a new `StoppableThreadPool` instance using a user supplied futures `ThreadPool` executor instance.
-    pub fn new_with_pool(pool: ThreadPool) -> StoppableThreadPool<PoolError> {
-        let (control_sender, control_receiver) = channel::<Result<(),PoolError>>(1);
+    pub fn new_with_pool(pool: ThreadPool, chan_cap: usize) -> StoppableThreadPool<PoolError> {
+        let (control_sender, control_receiver) = channel::<Result<(),PoolError>>(chan_cap);
         StoppableThreadPool::<PoolError> {
             pool,
             control_sender,
             control_receiver,
             stop_senders: Vec::new(),
+            chan_cap,
         }
     }
 
@@ -66,7 +69,7 @@ impl<PoolError> StoppableThreadPool<PoolError>
     where
         Fut: Future<Output = Result<(),PoolError>> + Send + 'static,
     {
-        let (tx, rx) = channel::<()>(1);
+        let (tx, rx) = channel::<()>(self.chan_cap);
         self.stop_senders.push(tx);
         let control = self.control_sender.clone();
         self.pool.spawn_ok(async move {
@@ -129,9 +132,11 @@ mod tests {
         Err(msg)
     }
 
+    const CHAN_CAP: usize = 1;
+
     #[test]
     fn observe_ok() {
-        let mut pool = StoppableThreadPool::new().unwrap();
+        let mut pool = StoppableThreadPool::new(CHAN_CAP).unwrap();
         for _ in 0..1000 {
             pool.spawn(ok());
         }
@@ -146,7 +151,7 @@ mod tests {
 
     #[test]
     fn observe_err() {
-        let mut pool = StoppableThreadPool::new().unwrap();
+        let mut pool = StoppableThreadPool::new(CHAN_CAP).unwrap();
         let err = "fail_function_called".to_string();
         pool.spawn(fail(err.clone()));
         pool.spawn(forever());
@@ -161,7 +166,7 @@ mod tests {
 
     #[test]
     fn user_stopped() {
-        let mut pool = StoppableThreadPool::new().unwrap();
+        let mut pool = StoppableThreadPool::new(CHAN_CAP).unwrap();
         pool
             .spawn(forever())
             .spawn(forever());
@@ -182,7 +187,7 @@ mod tests {
 
     #[test]
     fn change_pool() {
-        let mut pool = StoppableThreadPool::new().unwrap();
+        let mut pool = StoppableThreadPool::new(CHAN_CAP).unwrap();
         pool.spawn(forever());
         pool.with_pool(ThreadPool::new().unwrap());
         pool.spawn(fail("fail function called".to_string()));
