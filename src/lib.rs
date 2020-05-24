@@ -89,7 +89,7 @@ impl<PoolError> StoppableThreadPool<PoolError>
     /// A task that fails before a call to `observe()` is being awaited will still trigger a stop as soon as you actually start awaiting here.
     pub async fn observe(&self) -> Result<(),PoolError> {
         let mut completed: usize = 0;
-        while let Some(output) = self.control_receiver.recv().await {
+        while let Ok(output) = self.control_receiver.recv().await {
             completed += 1;
             if output.is_err() {
                 for tx in self.stop_senders.iter() {

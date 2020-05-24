@@ -1,3 +1,6 @@
+[![Cargo](https://img.shields.io/crates/v/poolparty.svg)](https://crates.io/crates/poolparty)
+[![Documentation](https://docs.rs/poolparty/badge.svg)](https://docs.rs/poolparty)
+
 Tiny crate providing added functionality to the futures-rs threadpool executor.
 The `futures::future::ThreadPool` executor currently has no way built in to handle panics, manually stop the pool execution or bubble up errors back to the caller.
 The crate works around these limitations (it might get obsolete once [this open issue will be resolved](https://github.com/rust-lang/futures-rs/issues/1468)).
@@ -9,13 +12,6 @@ Use cases for the crate are:
 
 # Usage
 
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-poolparty = "0.1"
-```
-
 The following example demonstrates the handling of a failing task:
 ```rust
 async fn forever() -> Result<(),String> {
@@ -26,7 +22,7 @@ async fn fail(msg: String) -> Result<(),String> {
     Err(msg)
 }
 
-let mut pool = StoppableThreadPool::new()?;
+let mut pool = StoppableThreadPool::new(2)?;
 let err = "fail_function_called".to_string();
 pool.spawn(fail(err.clone()));
 pool.spawn(forever());
