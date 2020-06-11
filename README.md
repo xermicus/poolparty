@@ -10,6 +10,8 @@ Use cases for the crate are:
 * Let the caller handle the error.
 * Stop the threadpool and its spawned tasks on user request.
 
+⚠ This crate is beeing passively maintained. It works just fine for me in an existing project. However I'll be using [smol](https://crates.io/crates/smol) as my futures executor in new projects. The `smol` task handles offer the same functionality (and more), rendering this crate obsolete.
+
 # Usage
 
 The following example demonstrates the handling of a failing task:
