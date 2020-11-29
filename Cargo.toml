@@ -1,6 +1,6 @@
 [package]
 name = "poolparty"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["xermicus <bigcyrill@hotmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -14,5 +14,5 @@ Added functionality for the `futures::executor::ThreadPool` futures executor.
 categories = ["asynchronous"]
 
 [dependencies]
-futures = { version = "0.3.5", package = "futures", features = ["thread-pool"] }
-async-std = { version = "1.6.0", features = ["unstable"] }
+futures = { version = "0.3.8", package = "futures", features = ["thread-pool"] }
+async-std = { version = "1.7.0", features = ["unstable"] }
