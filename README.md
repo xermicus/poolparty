@@ -24,7 +24,7 @@ async fn fail(msg: String) -> Result<(),String> {
     Err(msg)
 }
 
-let mut pool = StoppableThreadPool::new(2)?;
+let mut pool = StoppableThreadPool::new()?;
 let err = "fail_function_called".to_string();
 pool.spawn(fail(err.clone()));
 pool.spawn(forever());
