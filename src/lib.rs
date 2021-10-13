@@ -8,7 +8,7 @@ use futures::{
     pin_mut, select,
 };
 
-const INTERNAL_CHANNEL: &'static str = "Control channel closed, this should never happen.";
+const INTERNAL_CHANNEL: &str = "Control channel closed, this should never happen.";
 
 /// Added functionality for the `futures::executor::ThreadPool` futures executor.
 ///
@@ -68,9 +68,9 @@ where
             let future = future.fuse();
             let stopped = rx.recv().fuse();
             pin_mut!(future, stopped);
-            select! {
-                output = future => control.send(output).await.expect(INTERNAL_CHANNEL),
-                _ = stopped => control.send(Ok(())).await.expect(INTERNAL_CHANNEL)
+            let _ = select! {
+                output = future => control.send(output).await,
+                _ = stopped => control.send(Ok(())).await
             };
         });
         self
